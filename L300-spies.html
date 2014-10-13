@@ -1,0 +1,64 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Jasmine Spec Runner v2.0.3</title>
+
+  <link rel="shortcut icon" type="image/png" href="http://localhost:8001/jasmine-2.0.3/jasmine_favicon.png">
+  <link rel="stylesheet"    type="text/css"  href="http://localhost:8001/jasmine-2.0.3/jasmine.css">
+
+  <script type="text/javascript" src="http://localhost:8001/jasmine-2.0.3/jasmine.js"></script>
+  <script type="text/javascript" src="http://localhost:8001/jasmine-2.0.3/jasmine-html.js"></script>
+  <script type="text/javascript" src="http://localhost:8001/jasmine-2.0.3/boot.js"></script>
+
+
+</head>
+
+<body>
+<script>
+// --------------- code to test ------------------------------
+
+// We don't test this fucntion
+function RestService() {}
+RestService.prototype.init = function(opt) {
+    console.log('initializer called, opt=' + opt);    // will echo 1 or 2 to show which function call is being used
+};
+
+
+// This is the function Under Test
+function Post(restService, opt) {
+    this.restService = restService;
+    restService.init(opt);
+}
+
+// --------------------spec------------------------------------
+
+describe('Posts', function() {
+    var restService, post;
+
+    beforeEach(function() {                 // [1]
+        restService = new RestService();
+        post = new Post(restService, '1');  // [2]
+    });
+
+    it('will initialize the rest service upon creation', function() {
+
+            console.log('before spyOn, resetService.init='+restService.init )  // the original function
+        spyOn(restService, 'init');                                            // [3]
+            console.log('after spyOn, resetService.init='+restService.init )   // original function is replaced
+
+        post = new Post(restService, '2');                                     // [4] opt = 2 is never used
+
+        expect(restService.init).toHaveBeenCalled();                           // [5]
+    });
+});
+/*
+[1]  is called before each spec is executed
+[2]  this restService() callback was execute before spec was executed
+[3]  spyOn replaces restService() to some internal Jasmine's internal function.
+[4]  here the is actually executing Jasmine's internal function to trigger its match method toHaveBeenCalled()
+
+*/
+</script>
+</body>
+</html>

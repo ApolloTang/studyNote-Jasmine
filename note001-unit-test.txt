@@ -1,0 +1,11 @@
+Behavior Driven Developement (BDD) -by Dan North
+
+    1. small test that test one thing
+    2. test describe in human read able sentances
+
+Test Driven Development (TDD)
+
+    1. write test b4 codes
+    2. codes serves to pass test.
+
+

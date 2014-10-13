@@ -1,0 +1,116 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Jasmine Spec Runner v2.0.3</title>
+
+  <link rel="shortcut icon" type="image/png" href="http://localhost:8001/jasmine-2.0.3/jasmine_favicon.png">
+  <link rel="stylesheet"    type="text/css"  href="http://localhost:8001/jasmine-2.0.3/jasmine.css">
+
+  <script type="text/javascript" src="http://localhost:8001/jasmine-2.0.3/jasmine.js"></script>
+  <script type="text/javascript" src="http://localhost:8001/jasmine-2.0.3/jasmine-html.js"></script>
+  <script type="text/javascript" src="http://localhost:8001/jasmine-2.0.3/boot.js"></script>
+
+
+</head>
+
+<body>
+<script>
+// --------------- code to test ------------------------------
+
+
+//This is the one we don't care about
+function RestService() {
+}
+
+RestService.prototype.init = function() {
+  // Some init stuff
+};
+
+RestService.prototype.getAll = function() {
+  return []; // Return elements
+};
+
+RestService.prototype.update = function(item) {
+  console.log("Updating the item");
+};
+
+// This is our SUT (Subject under test)
+function Post(rest) {
+  this.rest = rest;
+  rest.init();
+}
+
+Post.prototype.retrieve = function() {
+  this.posts = this.rest.getAll();
+};
+
+Post.prototype.accept = function(item, callback) {
+  this.rest.update(item);
+  if (callback) {
+    callback();
+  }
+};
+
+// --------------------spec------------------------------------
+
+describe('Posts', function() {
+  var rest, post;
+
+  beforeEach(function() {
+    rest = new RestService();
+    post = new Post(rest);
+  });
+
+  it('will initialize the rest service upon creation', function() {
+    spyOn(rest, 'init');
+    post = new Post(rest);
+    expect(rest.init).toHaveBeenCalled();
+  });
+
+  it('will receive the list of posts from the rest service', function() {
+    var posts = [
+      {
+        title: 'Foo',
+        body: 'Foo post'
+      },
+      {
+        title: 'Bar',
+        body: 'Bar post'
+      }
+    ];
+
+    spyOn(rest, 'getAll').and.returnValue(posts);
+    post.retrieve();
+    expect(rest.getAll).toHaveBeenCalled();
+    expect(post.posts).toBe(posts);
+  });
+
+  it('can accept a post to update it', function() {
+    var postToAccept = {
+      title: 'Title',
+      body: 'Post'
+    };
+    spyOn(rest, 'update').and.callThrough();
+    post.accept(postToAccept);
+    expect(rest.update).toHaveBeenCalledWith(postToAccept);
+  });
+
+  it('can receive a callback upon accept', function() {
+    var fn = jasmine.createSpy();
+    var postToAccept = {
+      title: 'Title',
+      body: 'Post'
+    };
+    post.accept(postToAccept, fn);
+    expect(fn).toHaveBeenCalled();
+  });
+
+});
+
+
+
+
+</script>
+</body>
+</html>
