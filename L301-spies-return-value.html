@@ -45,9 +45,9 @@
         this.restService = restService;
         restService.init(opt);
     }
-    Post.prototype.retrieve = function(){
+    Post.prototype.retrieve = function(tag){
         this.postsResults = this.restService.getAll();
-        console.log(this.postsResults);
+        console.log(this.postsResults, tag);
     };
 
 
@@ -72,7 +72,7 @@ describe('Post', function() {
             { title: 'Title ABC' , content: 'content ABC' }
             , { title: 'Title XYZ' , content: 'content XYZ' }
         ];
-        post.retrieve();
+        post.retrieve(1);
         expect(post.postsResults).toEqual(expectedResults);
     });
 
@@ -90,7 +90,7 @@ describe('Post', function() {
             , { title: 'Title XYZ' , content: 'content XYZ' }
         ];
         spyOn(restService, 'getAll').and.returnValue(MockPostResults)
-        post.retrieve();
+        post.retrieve(2);
         expect(post.postsResults).toEqual(expectedResults);
     });
 });
