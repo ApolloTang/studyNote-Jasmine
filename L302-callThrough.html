@@ -1,0 +1,117 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Jasmine spies return values</title>
+
+  <link rel="shortcut icon" type="image/png" href="http://localhost:8001/jasmine-2.0.3/jasmine_favicon.png">
+  <link rel="stylesheet"    type="text/css"  href="http://localhost:8001/jasmine-2.0.3/jasmine.css">
+
+  <script type="text/javascript" src="http://localhost:8001/jasmine-2.0.3/jasmine.js"></script>
+  <script type="text/javascript" src="http://localhost:8001/jasmine-2.0.3/jasmine-html.js"></script>
+  <script type="text/javascript" src="http://localhost:8001/jasmine-2.0.3/boot.js"></script>
+
+
+</head>
+
+<body>
+<script>
+// --------------- code to test ------------------------------
+
+/*
+    In the follwoing code, Post controller delegated its REST work to RestService
+    We want to use unit test to check the retrive() method in the controller
+    is working as expected.
+*/
+
+
+// We don't test this fucntion
+    function RestService() {}
+    RestService.prototype.init = function() {
+    };
+    RestService.prototype.getAll = function(tag) {
+        var posts = [
+            { title: 'Title ABC' , content: 'content ABC' }
+            , { title: 'Title XYZ' , content: 'content XYZ' }
+        ];
+        console.log('in getAll, tag is: ', tag)
+        return posts;
+    };
+
+
+// This is the function Under Test
+    function Post(restService, opt) {
+        this.restService = restService;
+        restService.init(opt);
+    }
+    Post.prototype.retrieve = function(tag){
+        this.postsResults = this.restService.getAll(tag);
+        console.log(this.postsResults, tag);
+    };
+
+
+// --------------------spec------------------------------------
+
+describe('Post', function() {
+    var restService, post;
+
+    beforeEach(function() {
+        restService = new RestService();
+        post = new Post(restService, '1');
+    });
+
+    it('will initialize the rest service upon creation', function() {
+        spyOn(restService, 'init');
+        post = new Post(restService);
+        expect(restService.init).toHaveBeenCalled();
+    });
+
+    it('will receive the list of posts from the rest service (1)', function() {
+        var expectedResults = [
+            { title: 'Title ABC' , content: 'content ABC' }
+            , { title: 'Title XYZ' , content: 'content XYZ' }
+        ];
+        post.retrieve(1);
+        expect(post.postsResults).toEqual(expectedResults);
+    });
+
+    // Now using spies to swap out resetService.getAll()
+        // We swap out the function we don't want to test, as it is
+        // not the test subject.
+
+    it('will receive the list of posts from the rest service (2)', function() {
+        var MockPostResults = [
+            { title: 'Title ABC' , content: 'content ABC' }
+            , { title: 'Title XYZ' , content: 'content XYZ' }
+        ];
+        var expectedResults = [
+            { title: 'Title ABC' , content: 'content ABC' }
+            , { title: 'Title XYZ' , content: 'content XYZ' }
+        ];
+        spyOn(restService, 'getAll').and.returnValue(MockPostResults)
+        post.retrieve(2);    // tag 2 never echo because getAll() has been replaced by spy
+        expect(post.postsResults).toEqual(expectedResults);
+    });
+
+    it('will receive the list of posts from the rest service (2)', function() {
+        var MockPostResults = [
+            { title: 'Title ABC' , content: 'content ABC' }
+            , { title: 'Title XYZ' , content: 'content XYZ' }
+        ];
+        var expectedResults = [
+            { title: 'Title ABC' , content: 'content ABC' }
+            , { title: 'Title XYZ' , content: 'content XYZ' }
+        ];
+        spyOn(restService, 'getAll').and.callThrough()
+        post.retrieve(3);    // tag 3 shown in console.log despite getAll() has been replaced by spy
+                             // this is because callThrough() will delegate to the original getAll()
+        expect(post.postsResults).toEqual(expectedResults);
+    });
+});
+
+/*
+
+*/
+</script>
+</body>
+</html>

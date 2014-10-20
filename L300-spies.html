@@ -50,9 +50,9 @@
 describe('testing PostCtrl', function() {
     var restService, post;
 
-    beforeEach(function() {                          // [1]
+    beforeEach(function() {                              // [1]
         restService = new RestService();
-        post = new PostCtrl(restService, 'note 2');  // [2]
+        postCtrl = new PostCtrl(restService, 'note 2');  // [2]
     });
 
     it('will initialize the rest service upon creation', function() {
@@ -61,7 +61,7 @@ describe('testing PostCtrl', function() {
         spyOn(restService, 'init');                                            // [3]
             console.log('after spyOn, resetService.init='+restService.init )   // original function is replaced
 
-        post = new PostCtrl(restService, 'note 4');                            // [4] 'note 4' will not show on console.log
+        postCtrl = new PostCtrl(restService, 'note 4');                        // [4] 'note 4' will not show on console.log
 
         expect(restService.init).toHaveBeenCalled();                           // [5]
     });
