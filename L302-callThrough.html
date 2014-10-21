@@ -24,76 +24,77 @@
     is working as expected.
 */
 
+    window.data =  [
+            { title: 'Title ABC' , content: 'content ABC' }
+            , { title: 'Title XYZ' , content: 'content XYZ' }
+        ];
 
-// We don't test this fucntion
+// We don't test this function
     function RestService() {}
     RestService.prototype.init = function() {
     };
     RestService.prototype.getAll = function(tag) {
-        var posts = [
-            { title: 'Title ABC' , content: 'content ABC' }
-            , { title: 'Title XYZ' , content: 'content XYZ' }
-        ];
-        console.log('in getAll, tag is: ', tag)
+        var posts = window.data;
+        console.log(tag);
         return posts;
     };
 
 
 // This is the function Under Test
-    function Post(restService, opt) {
+    function PostCtrl(restService) {
         this.restService = restService;
-        restService.init(opt);
+        restService.init();
     }
-    Post.prototype.retrieve = function(tag){
+    PostCtrl.prototype.retrieve = function(tag){
+        console.log('if next line does not show "' + tag + '" then restService.getAll() has been replaced spi');
         this.postsResults = this.restService.getAll(tag);
-        console.log(this.postsResults, tag);
     };
 
 
 // --------------------spec------------------------------------
 
-describe('Post', function() {
+describe('Testing PostCtrl', function() {
     var restService, post;
 
     beforeEach(function() {
         restService = new RestService();
-        post = new Post(restService, '1');
+        postCtrl = new PostCtrl(restService);
     });
 
-    it('will initialize the rest service upon creation', function() {
-        spyOn(restService, 'init');
-        post = new Post(restService);
-        expect(restService.init).toHaveBeenCalled();
+
+    // test 1 varified data when post control execute its retrieve() method
+
+    it('[test 1] retrieve() in post control will receive the posts from RestService()', function() {
+        var expectedResults = window.data;
+        postCtrl.retrieve('test 1');   // <------------------------------- we are testing this method
+        expect(postCtrl.postsResults).toEqual( expectedResults );
     });
 
-    it('will receive the list of posts from the rest service (1)', function() {
-        var expectedResults = [
-            { title: 'Title ABC' , content: 'content ABC' }
-            , { title: 'Title XYZ' , content: 'content XYZ' }
-        ];
-        post.retrieve(1);
-        expect(post.postsResults).toEqual(expectedResults);
-    });
+    // In previous test, we need to know what data rest service is returning, so we know
+    // what data to test agaist.
 
-    // Now using spies to swap out resetService.getAll()
-        // We swap out the function we don't want to test, as it is
-        // not the test subject.
+    // In the following test, we defined in our test, so we no longer need to
+    // know out what data to test agaist. --- this way
+    // our test independ of the Rest service.
 
-    it('will receive the list of posts from the rest service (2)', function() {
+
+    it('[test 2] retrieve() in post control will receive the posts from RestService()', function() {
+        // the mocked value for the swapped function
         var MockPostResults = [
             { title: 'Title ABC' , content: 'content ABC' }
             , { title: 'Title XYZ' , content: 'content XYZ' }
         ];
-        var expectedResults = [
-            { title: 'Title ABC' , content: 'content ABC' }
-            , { title: 'Title XYZ' , content: 'content XYZ' }
-        ];
+        // the value to be tested against
+        var expectedResults = MockPostResults;
+        // swap the function and return macked values
         spyOn(restService, 'getAll').and.returnValue(MockPostResults)
-        post.retrieve(2);    // tag 2 never echo because getAll() has been replaced by spy
-        expect(post.postsResults).toEqual(expectedResults);
+        // simulate method execution
+        postCtrl.retrieve('test 2');
+        // test the return value of swapped method
+        expect(postCtrl.postsResults).toEqual(expectedResults);
     });
 
-    it('will receive the list of posts from the rest service (2)', function() {
+    it('[test 3] will receive the list of posts from the rest service (2)', function() {
         var MockPostResults = [
             { title: 'Title ABC' , content: 'content ABC' }
             , { title: 'Title XYZ' , content: 'content XYZ' }
@@ -103,9 +104,9 @@ describe('Post', function() {
             , { title: 'Title XYZ' , content: 'content XYZ' }
         ];
         spyOn(restService, 'getAll').and.callThrough()
-        post.retrieve(3);    // tag 3 shown in console.log despite getAll() has been replaced by spy
+        postCtrl.retrieve(3);    // tag 3 shown in console.log despite getAll() has been replaced by spy
                              // this is because callThrough() will delegate to the original getAll()
-        expect(post.postsResults).toEqual(expectedResults);
+        expect(postCtrl.postsResults).toEqual(expectedResults);
     });
 });
 
