@@ -1,6 +1,3 @@
-// $(document).ajaxComplete(function(ev, jqXHR, settings) {
-//     $.ajax.mostRecentCall = jqXHR;
-// });
 
 myObj = {
     someMethod: function () {
