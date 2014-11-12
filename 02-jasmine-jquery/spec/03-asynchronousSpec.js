@@ -5,8 +5,8 @@ describe("Asynchronous specs", function() {
     setTimeout(function() {
       value = 0;
       done(); // when done() is called, the specs (it block) will start running
-    // }, 4000);
-    }, 5000); // <--- if it takes longer than 5000ms it is consider a time out failure
+    }, 4000);
+    // }, 5000); // <--- if it takes longer than 5000ms it is consider a time out failure
   });
 
   it("should support async execution of test preparation and expectations", function(done) {
