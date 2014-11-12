@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <title>Jasmine spies return values</title>
+  <title>callThrough</title>
 
   <link rel="shortcut icon" type="image/png" href="http://localhost:8001/jasmine-2.0.3/jasmine_favicon.png">
   <link rel="stylesheet"    type="text/css"  href="http://localhost:8001/jasmine-2.0.3/jasmine.css">
@@ -80,33 +80,32 @@ describe('Testing PostCtrl', function() {
 
     it('[test 2] retrieve() in post control will receive the posts from RestService()', function() {
         // the mocked value for the swapped function
-        var MockPostResults = [
-            { title: 'Title ABC' , content: 'content ABC' }
-            , { title: 'Title XYZ' , content: 'content XYZ' }
+        var mockPostResults = [
+              { title: 'Title ABC fake' , content: 'content ABC' }
+            , { title: 'Title XYZ fake' , content: 'content XYZ' }
         ];
         // the value to be tested against
-        var expectedResults = MockPostResults;
+        var expectedResults = mockPostResults;
         // swap the function and return macked values
-        spyOn(restService, 'getAll').and.returnValue(MockPostResults)
+        spyOn(restService, 'getAll').and.returnValue(mockPostResults)
         // simulate method execution
         postCtrl.retrieve('test 2');
         // test the return value of swapped method
         expect(postCtrl.postsResults).toEqual(expectedResults);
     });
 
-    it('[test 3] will receive the list of posts from the rest service (2)', function() {
-        var MockPostResults = [
-            { title: 'Title ABC' , content: 'content ABC' }
-            , { title: 'Title XYZ' , content: 'content XYZ' }
-        ];
-        var expectedResults = [
-            { title: 'Title ABC' , content: 'content ABC' }
-            , { title: 'Title XYZ' , content: 'content XYZ' }
+    var test3_description = '[test 3] With calThrough the original function is used'
+                         + ' -- expect returned value to not equal to mockPostResult';
+
+    it(test3_description,  function() {
+        var mockPostResults = [
+              { title: 'Title ABC fake' , content: 'content ABC' }
+            , { title: 'Title XYZ fake' , content: 'content XYZ' }
         ];
         spyOn(restService, 'getAll').and.callThrough()
-        postCtrl.retrieve(3);    // tag 3 shown in console.log despite getAll() has been replaced by spy
-                             // this is because callThrough() will delegate to the original getAll()
-        expect(postCtrl.postsResults).toEqual(expectedResults);
+        postCtrl.retrieve('test 3');    // tag 3 shown in console.log despite getAll() has been replaced by spy
+                                        // this is because callThrough() will delegate to the original getAll()
+        expect(postCtrl.postsResults).not.toEqual(mockPostResults);
     });
 });
 
