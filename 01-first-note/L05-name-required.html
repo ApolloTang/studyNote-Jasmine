@@ -1,0 +1,142 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>callThrough</title>
+
+<link rel="shortcut icon" type="image/png" href="http://localhost:8001/jasmine-2.0.3/jasmine_favicon.png">
+<link rel="stylesheet"    type="text/css"  href="http://localhost:8001/jasmine-2.0.3/jasmine.css">
+
+<script type="text/javascript" src="http://localhost:8001/jasmine-2.0.3/jasmine.js"></script>
+<script type="text/javascript" src="http://localhost:8001/jasmine-2.0.3/jasmine-html.js"></script>
+<script type="text/javascript" src="http://localhost:8001/jasmine-2.0.3/boot.js"></script>
+
+
+</head>
+
+<body>
+<script>
+// --------------- code to test ------------------------------
+
+    /*
+       In the code below, Post controller delegated its REST work to RestService
+       We want to use unit test to check the retrive() method in the controller
+       is working as expected.
+     */
+
+    window.data =  [
+        { title: 'Title ABC' , content: 'content ABC' }
+        , { title: 'Title XYZ' , content: 'content XYZ' }
+    ];
+
+    // We don't test this function
+    function RestService() {}
+    RestService.prototype.init = function() { };
+    RestService.prototype.getAll = function(tag) {
+        var posts = window.data;
+        console.log(tag);
+        return posts;
+    };
+    RestService.prototype.update = function(item) {
+        console.log('Rest service is updating item:', item );
+    };
+
+
+    // This is the function Under Test
+    function PostCtrl(restService) {
+        this.restService = restService;
+        restService.init();
+    }
+    PostCtrl.prototype.retrieve = function(tag){
+        console.log('if next line does not show "' + tag + '" then restService.getAll() has been replaced spi');
+        this.postsResults = this.restService.getAll(tag);
+    };
+    PostCtrl.prototype.push = function(item, callback) {
+        this.restService.update(item);
+        if (callback) { callback() };
+    }
+
+
+// --------------------spec------------------------------------
+
+    describe('Testing PostCtrl', function() {
+        var restService, post;
+
+        beforeEach(function() {
+            restService = new RestService();
+            postCtrl = new PostCtrl(restService);
+            });
+
+
+        // [test 1] varified data when post control execute its retrieve() method
+
+        it('[test 1] retrieve() in post control will receive the posts from RestService()', function() {
+            var expectedResults = window.data;
+            postCtrl.retrieve('test 1');   // <------------------------------- we are testing this method
+            expect(postCtrl.postsResults).toEqual( expectedResults );
+            });
+
+        it('[test 2] retrieve() in post control will receive the posts from RestService()', function() {
+
+            // the mocked value for the swapped function
+            var mockPostResults = [
+            { title: 'Title ABC fake' , content: 'content ABC' }
+            , { title: 'Title XYZ fake' , content: 'content XYZ' }
+            ];
+
+            // the value to be tested against
+            var expectedResults = mockPostResults;
+
+            // swap the function and return macked values
+            spyOn(restService, 'getAll').and.returnValue(mockPostResults)
+
+            // simulate method execution
+            postCtrl.retrieve('test 2');
+
+            // test the return value of swapped method
+            expect(postCtrl.postsResults).toEqual(expectedResults);
+            });
+
+        // [test 3] using 'callThrough'
+
+        var test3_description = '[test 3] when using callThrough the original function is used'
+            + ' -- expect returned value to not equal to mockPostResult';
+
+        it(test3_description,  function() {
+
+            var mockPostResults = [
+                { title: 'Title ABC fake' , content: 'content ABC' }
+                , { title: 'Title XYZ fake' , content: 'content XYZ' }
+            ];
+
+            spyOn(restService, 'getAll').and.callThrough()
+            postCtrl.retrieve('test 3');
+            // tag 3 shown in console.log despite getAll() has been replaced by spy
+            // this is because callThrough() will delegate to the original getAll()
+            expect(postCtrl.postsResults).not.toEqual(mockPostResults);
+        });
+
+        // [test 4] creating a mock callback.
+        var test4_description = "[test 4] Using mock callback -- subject under test can execute callback";
+
+        it (test4_description, function(){
+
+            var mockCallBack = jasmine.createSpy();
+
+            var mockDataToSend = [
+                { title: 'Title OPQ fake' , content: 'content OPQ' }
+                , { title: 'Title OPQ fake' , content: 'content OPQ' }
+            ];
+
+           postCtrl.push(mockDataToSend, mockCallBack);
+           expect(mockCallBack).toHaveBeenCalled();
+
+        })
+    });
+
+/*
+
+ */
+</script>
+</body>
+</html>
