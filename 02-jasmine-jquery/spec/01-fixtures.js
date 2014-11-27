@@ -6,7 +6,7 @@ describe("checking out fixture:", function(){
         expect(setFixtures).toBeDefined();
     });
 
-    it("can load fixtures from a file, and append it to dom", function(){
+    it("loadFixtures() can load fixtures from a file, and append it to dom", function(){
         loadFixtures('myFragment.html');
         //default location for fragment files:
         //  "spec/javascripts/fixtures/myFragment.html"
@@ -16,7 +16,7 @@ describe("checking out fixture:", function(){
         //           //     of <div id="jasmine-fixtures"></div>
     });
 
-    it("can read fixtures w/o appending to DOM", function(){
+    it("readFixtures() can read fixtures w/o appending to DOM", function(){
         // the different between loadFixtures and readFixtures
         // is taht 'loadFixtures' append the fragment in the dom
         // while 'readFixtures' return fragment as a string without
@@ -26,7 +26,7 @@ describe("checking out fixture:", function(){
         expect( $(fixture).find('li') ).toHaveText('Add some data');
     });
 
-    it("can also receive the fixture from a parameter instead of a file", function(){
+    it("setFixtures() can receive the fixture from a parameter instead of a file", function(){
         setFixtures('<div class="sandbox">this is a sand box</div>');
         // unlike loadFixtures, you pass in string instead of
         // filename of the fragment. The fragment is then appended
@@ -39,19 +39,19 @@ describe("checking out fixture:", function(){
 
     // -- Sandbox function --//
 
-    it("offer a sandbox function that wrap in jQuery", function(){
+    it("Sandbox() is a function that wrap in jQuery", function(){
         expect(sandbox).toBeDefined;
         var $sb = sandbox();
         expect($sb instanceof jQuery).toBeTruthy()
     });
 
-    it("can specify class for the sand box", function(){
+    it("Sandbox() can specify class for the sand box", function(){
         expect(sandbox).toBeDefined;
         var $sb = sandbox({'class':'some-class'});
         expect($sb).toHaveClass('some-class');
     });
 
-    it("can pass sandbox to setFixtures(), which will insert it in DOM", function(){
+    it("You can pass sandbox to setFixtures(), which will insert it in DOM", function(){
         expect(sandbox).toBeDefined;
         var $sb = sandbox({'class':'some-class'});
         setFixtures($sb);
